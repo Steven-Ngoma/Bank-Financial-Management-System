@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Apply for Loan - SmartLoan{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-plus-circle me-2"></i>Loan Application</h3>
+            </div>
+            <div class="card-body">
+                <form id="loanApplicationForm">
+                    <!-- Personal Information -->
+                    <h5 class="mb-3">Personal Information</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email Address *</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label">Phone Number *</label>
+                            <input type="tel" class="form-control" id="phone" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="credit_score" class="form-label">Credit Score</label>
+                            <input type="number" class="form-control" id="credit_score" min="300" max="850" placeholder="650">
+                        </div>
+                    </div>
+
+                    <!-- Financial Information -->
+                    <h5 class="mb-3 mt-4">Financial Information</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="annual_income" class="form-label">Annual Income *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="annual_income" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="employment_years" class="form-label">Years of Employment *</label>
+                            <input type="number" class="form-control" id="employment_years" min="0" required>
+                        </div>
+                    </div>
+
+                    <!-- Loan Details -->
+                    <h5 class="mb-3 mt-4">Loan Details</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="amount" class="form-label">Loan Amount *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="amount" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="term_months" class="form-label">Loan Term *</label>
+                            <select class="form-select" id="term_months" required>
+                                <option value="">Select term</option>
+                                <option value="12">12 months</option>
+                                <option value="24">24 months</option>
+                                <option value="36">36 months</option>
+                                <option value="48">48 months</option>
+                                <option value="60">60 months</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="purpose" class="form-label">Loan Purpose *</label>
+                        <select class="form-select" id="purpose" required>
+                            <option value="">Select purpose</option>
+                            <option value="Home Purchase">Home Purchase</option>
+                            <option value="Car Loan">Car Loan</option>
+                            <option value="Personal Loan">Personal Loan</option>
+                            <option value="Business Loan">Business Loan</option>
+                            <option value="Education Loan">Education Loan</option>
+                            <option value="Debt Consolidation">Debt Consolidation</option>
+                        </select>
+                    </div>
+
+                    <!-- Risk Assessment Preview -->
+                    <div id="riskPreview" class="alert alert-info d-none">
+                        <h6><i class="fas fa-calculator me-2"></i>Risk Assessment Preview</h6>
+                        <div id="riskDetails"></div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-outline-primary me-md-2" onclick="calculateRisk()">
+                            <i class="fas fa-calculator me-1"></i>Calculate Risk
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>Submit Application
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Result Modal -->
+<div class="modal fade" id="resultModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Application Result</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">View Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('loanApplicationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        annual_income: parseFloat(document.getElementById('annual_income').value),
+        employment_years: parseInt(document.getElementById('employment_years').value),
+        credit_score: parseInt(document.getElementById('credit_score').value) || 650,
+        amount: parseFloat(document.getElementById('amount').value),
+        term_months: parseInt(document.getElementById('term_months').value),
+        purpose: document.getElementById('purpose').value
+    };
+    
+    fetch('/api/loans/apply', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        showResult(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the application.');
+    });
+});
+
+function calculateRisk() {
+    const income = parseFloat(document.getElementById('annual_income').value);
+    const amount = parseFloat(document.getElementById('amount').value);
+    const creditScore = parseInt(document.getElementById('credit_score').value) || 650;
+    const employment = parseInt(document.getElementById('employment_years').value);
+    
+    if (!income || !amount || !employment) {
+        alert('Please fill in all required fields first.');
+        return;
+    }
+    
+    // Simple risk calculation for preview
+    let riskScore = 500; // Base score
+    
+    // Credit score impact
+    riskScore += (creditScore - 650) * 0.5;
+    
+    // Loan to income ratio impact
+    const loanToIncomeRatio = amount / income;
+    if (loanToIncomeRatio <= 2) riskScore += 100;
+    else if (loanToIncomeRatio <= 3) riskScore += 50;
+    else if (loanToIncomeRatio > 4) riskScore -= 100;
+    
+    // Employment stability
+    if (employment >= 5) riskScore += 50;
+    else if (employment >= 2) riskScore += 25;
+    else if (employment < 1) riskScore -= 50;
+    
+    riskScore = Math.max(300, Math.min(850, Math.round(riskScore)));
+    
+    const riskCategory = riskScore >= 700 ? 'Low Risk' : 
+                        riskScore >= 600 ? 'Medium Risk' : 
+                        riskScore >= 450 ? 'High Risk' : 'Very High Risk';
+    
+    const recommendation = riskScore >= 700 ? 'Likely to be approved' :
+                          riskScore >= 600 ? 'May require additional documentation' :
+                          riskScore >= 450 ? 'Manual review required' : 'May be rejected';
+    
+    document.getElementById('riskDetails').innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <strong>Risk Score:</strong> ${riskScore}<br>
+                <strong>Risk Category:</strong> ${riskCategory}
+            </div>
+            <div class="col-md-6">
+                <strong>Recommendation:</strong> ${recommendation}<br>
+                <strong>Loan-to-Income:</strong> ${loanToIncomeRatio.toFixed(2)}x
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('riskPreview').classList.remove('d-none');
+}
+
+function showResult(data) {
+    const statusClass = data.status === 'approved' ? 'success' : 
+                       data.status === 'rejected' ? 'danger' : 'warning';
+    
+    document.getElementById('modalBody').innerHTML = `
+        <div class="text-center">
+            <div class="alert alert-${statusClass}">
+                <h4><i class="fas fa-${data.status === 'approved' ? 'check-circle' : data.status === 'rejected' ? 'times-circle' : 'clock'}"></i></h4>
+                <h5>Application ${data.status.charAt(0).toUpperCase() + data.status.slice(1)}</h5>
+            </div>
+            <p><strong>Application ID:</strong> #${data.loan_id}</p>
+            <p><strong>Risk Score:</strong> ${data.risk_score}</p>
+            <p class="text-muted">${data.message}</p>
+        </div>
+    `;
+    
+    new bootstrap.Modal(document.getElementById('resultModal')).show();
+}
+</script>
+{% endblock %}

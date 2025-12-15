@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Customers - SmartLoan{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-users me-2"></i>Customer Management</h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+                <i class="fas fa-plus me-1"></i>Add Customer
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Annual Income</th>
+                                <th>Employment Years</th>
+                                <th>Credit Score</th>
+                                <th>Loans</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for customer in customers %}
+                            <tr>
+                                <td>#{{ customer.id }}</td>
+                                <td>{{ customer.name }}</td>
+                                <td>{{ customer.email }}</td>
+                                <td>{{ customer.phone }}</td>
+                                <td>${{ "{:,.0f}".format(customer.annual_income) }}</td>
+                                <td>{{ customer.employment_years }} years</td>
+                                <td>
+                                    <span class="badge bg-{% if customer.credit_score >= 750 %}success{% elif customer.credit_score >= 650 %}warning{% else %}danger{% endif %}">
+                                        {{ customer.credit_score }}
+                                    </span>
+                                </td>
+                                <td>{{ customer.loans|length }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewCustomer({{ customer.id }})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Customer Modal -->
+<div class="modal fade" id="addCustomerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addCustomerForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="customerName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="customerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="customerEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerPhone" class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="customerPhone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerIncome" class="form-label">Annual Income</label>
+                        <input type="number" class="form-control" id="customerIncome" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerEmployment" class="form-label">Employment Years</label>
+                        <input type="number" class="form-control" id="customerEmployment" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerCredit" class="form-label">Credit Score</label>
+                        <input type="number" class="form-control" id="customerCredit" min="300" max="850" value="650">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Customer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('addCustomerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        name: document.getElementById('customerName').value,
+        email: document.getElementById('customerEmail').value,
+        phone: document.getElementById('customerPhone').value,
+        annual_income: parseFloat(document.getElementById('customerIncome').value),
+        employment_years: parseInt(document.getElementById('customerEmployment').value),
+        credit_score: parseInt(document.getElementById('customerCredit').value)
+    };
+    
+    fetch('/api/customers', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Customer added successfully!');
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding the customer.');
+    });
+});
+
+function viewCustomer(customerId) {
+    // In a real application, this would show detailed customer information
+    alert(`View customer details for ID: ${customerId}`);
+}
+</script>
+{% endblock %}
