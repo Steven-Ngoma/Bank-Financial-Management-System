@@ -207,6 +207,16 @@ def api_dashboard_analytics():
         'approval_rate': round((approved_loans / total_loans * 100) if total_loans > 0 else 0, 2)
     })
 
+# Health check endpoint
+@app.route('/health')
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.utcnow().isoformat(),
+        'version': '1.0.0',
+        'database': 'connected'
+    })
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

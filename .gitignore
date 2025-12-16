@@ -26,20 +26,20 @@ venv/
 env/
 ENV/
 
-# Database
+# Database files
 *.db
 *.sqlite
 *.sqlite3
 finance_system.db
 
-# IDE
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
@@ -56,7 +56,7 @@ logs/
 instance/
 .webassets-cache
 
-# Coverage reports
+# Testing
 htmlcov/
 .coverage
 .coverage.*
@@ -64,6 +64,7 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+.tox/
 
 # Node modules
 node_modules/
@@ -72,7 +73,18 @@ node_modules/
 *.tmp
 *.temp
 
-# Unnecessary files for this project
+# Docker
+.dockerignore
+
+# Unnecessary project files
 app.py
 run.py
 backend/
+frontend/
+database/
+DESCRIPTION.md
+VISION.md
+
+# Data directories
+data/
+visual-app-images/
