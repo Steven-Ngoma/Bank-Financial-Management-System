@@ -201,10 +201,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨💻 Author
 
 **Steven Ngoma**
-- GitHub: [@your-github-username](https://github.com/your-github-username)
-- LinkedIn: [Your LinkedIn Profile](https://linkedin.com/in/your-profile)
-- Email: your.email@example.com
 
----
+- Email: stevenngoma697@gmail.com
+
+
 
 **SmartLoan Financial System** - Transforming loan processing through intelligent automation and risk assessment technology.
