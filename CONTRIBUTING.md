@@ -275,7 +275,7 @@ Contributors will be recognized in:
 
 - **GitHub Issues**: For bugs and feature requests
 - **GitHub Discussions**: For questions and general discussion
-- **Email**: [your.email@example.com] for private matters
+- **Email**: [stevenngoma697@gmail.com] for private matters
 
 ## 📄 License
 
